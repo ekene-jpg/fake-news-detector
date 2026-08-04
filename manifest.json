@@ -1,0 +1,14 @@
+{
+  "name": "Fake News Detector",
+  "short_name": "FakeNews",
+  "description": "ML-based fake news classifier with live fact-check cross-referencing.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#eee9df",
+  "theme_color": "#171b23",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/static/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/static/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
