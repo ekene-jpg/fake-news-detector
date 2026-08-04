@@ -16,7 +16,7 @@ import sqlite3
 from datetime import datetime
 
 import joblib
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 
 from train_model import clean_text  # reuses the exact preprocessing from training
 import fact_check
@@ -54,7 +54,9 @@ def log_prediction(input_text, result):
     )
     conn.commit()
     conn.close()
-
+@app.route("/sw.js")
+def service_worker():
+    return send_from_directory("static", "sw.js", mimetype="application/javascript")
 
 @app.route("/", methods=["GET"])
 def index():
