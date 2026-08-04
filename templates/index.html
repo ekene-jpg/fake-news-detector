@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Fake News Detection System</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app">
+
+  <div class="masthead">
+    <div class="kicker">Machine Learning · Logistic Regression + TF-IDF</div>
+    <h1 class="title">Fake News Detector</h1>
+    <div class="subtitle">Paste a news article or headline below. The model classifies it as Fake or Real based on patterns learned from training data.</div>
+  </div>
+
+  <div class="tabs">
+    <a href="{{ url_for('index') }}" class="tab-btn active">Analyze</a>
+    <a href="{{ url_for('history') }}" class="tab-btn">History</a>
+  </div>
+
+  {% if not model_ready %}
+  <div class="alert-box">
+    No trained model found on the server. Run <code>python train_model.py</code> first, then reload this page.
+  </div>
+  {% endif %}
+
+  {% if error %}
+  <div class="alert-box">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST" action="{{ url_for('predict') }}" class="section">
+    <label class="field-label" for="news_text">News text</label>
+    <textarea id="news_text" name="news_text" placeholder="Paste a headline or article excerpt...">{{ submitted_text or '' }}</textarea>
+    <button type="submit" class="scan-btn" {% if not model_ready %}disabled{% endif %}>Analyze</button>
+  </form>
+
+  {% if result %}
+  <div class="results">
+    <div class="verdict-stamp {{ 'v-fake' if result == 'Fake News' else 'v-real' }}">
+      {{ result }}
+      <span class="score">{% if fc_overridden %}EXTERNAL FACT-CHECK{% else %}ML CONFIDENCE {{ confidence }}%{% endif %}</span>
+    </div>
+
+    <div class="findings-title">External fact-checks</div>
+    {% if fc_error %}
+      <div class="fc-none">Fact-check lookup unavailable: {{ fc_error }}</div>
+    {% elif fc_claims and fc_claims|length > 0 %}
+      {% for c in fc_claims %}
+        {% for r in c.reviews %}
+          <div class="feed-card">
+            <div class="feed-source">{{ r.publisher }}{% if r.review_date %} · {{ r.review_date[:10] }}{% endif %}</div>
+            <div class="feed-title">{{ r.title or c.text }}</div>
+            <span class="feed-badge {{ 'v-fake' if 'false' in r.rating|lower or 'fake' in r.rating|lower else ('v-real' if 'true' in r.rating|lower else '') }}">{{ r.rating }}</span>
+            {% if r.url %}<div style="margin-top:8px;"><a class="fc-link" href="{{ r.url }}" target="_blank" rel="noopener">Read the review →</a></div>{% endif %}
+          </div>
+        {% endfor %}
+      {% endfor %}
+    {% else %}
+      <div class="fc-none">No matching claim found in fact-checking databases yet. This means it hasn't been reviewed — not that it's confirmed true.</div>
+    {% endif %}
+
+    {% if fc_overridden %}
+      <div class="alert-box" style="margin:14px 0;">{{ fc_overridden }} (ML model's own read was "{{ ml_result }}".)</div>
+    {% endif %}
+
+    <div class="findings-title">ML model prediction</div>
+    <div class="feed-card">
+      <span class="feed-badge {{ 'v-fake' if ml_result == 'Fake News' else 'v-real' }}">{{ ml_result }} · {{ confidence }}% confidence</span>
+    </div>
+
+    <div class="disclaimer">
+      External fact-checks (above) are real published verdicts from independent fact-checking organizations, matched by claim similarity — always confirm by reading the linked article. The ML prediction is a Logistic Regression model trained on TF-IDF text features — a tone/style read, not a truth check, used mainly when nothing has been fact-checked yet.
+    </div>
+  </div>
+  {% endif %}
+
+  <footer>Fake News Detection System · Final Year Project</footer>
+</div>
+</body>
+</html>

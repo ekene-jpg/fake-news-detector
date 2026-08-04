@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+news_detection.db
+model/*.pkl
+.env
+venv/

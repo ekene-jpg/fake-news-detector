@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Prediction History</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app">
+
+  <div class="masthead">
+    <div class="kicker">Prediction_History table</div>
+    <h1 class="title">History</h1>
+    <div class="subtitle">Most recent 50 predictions, logged to the database on every analysis.</div>
+  </div>
+
+  <div class="tabs">
+    <a href="{{ url_for('index') }}" class="tab-btn">Analyze</a>
+    <a href="{{ url_for('history') }}" class="tab-btn active">History</a>
+  </div>
+
+  <div class="feed-list">
+    {% if rows|length == 0 %}
+      <div class="feed-empty">No predictions logged yet. Run an analysis first.</div>
+    {% endif %}
+    {% for row in rows %}
+      <div class="feed-card">
+        <div class="feed-source">#{{ row[0] }} · {{ row[3] }}</div>
+        <div class="feed-title">{{ row[1][:180] }}{% if row[1]|length > 180 %}…{% endif %}</div>
+        <span class="feed-badge {{ 'v-fake' if row[2] == 'Fake News' else 'v-real' }}">{{ row[2] }}</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <footer>Fake News Detection System · Final Year Project</footer>
+</div>
+</body>
+</html>
