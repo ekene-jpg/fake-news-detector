@@ -63,8 +63,11 @@ def index():
     return render_template("index.html", model_ready=MODEL_READY)
 
 
-@app.route("/predict", methods=["POST"])
+@app.route("/predict", methods=["GET", "POST"])
 def predict():
+    if request.method == "GET":
+        return redirect(url_for("index"))
+
     if not MODEL_READY:
         return render_template(
             "index.html", model_ready=False,
